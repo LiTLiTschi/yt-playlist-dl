@@ -1,9 +1,28 @@
 from __future__ import annotations
+import hashlib
 import re
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+
+# ---------------------------------------------------------------------------
+# Archive path
+# ---------------------------------------------------------------------------
+
+def get_archive_path(out_dir: Path, url: str) -> Path:
+    """
+    Return a URL-specific archive file path inside out_dir.
+
+    Using a SHA-256 hash of the URL means:
+      - Each playlist always maps to exactly the same archive file (stable).
+      - Two different playlists that share a video each get their own archive,
+        so the video is downloaded once per playlist and skipped on re-runs
+        of the same playlist.
+    """
+    url_hash = hashlib.sha256(url.encode()).hexdigest()[:12]
+    return out_dir / f".yt-dlp-archive-{url_hash}.txt"
 
 
 # ---------------------------------------------------------------------------
@@ -27,7 +46,6 @@ def get_playlist_title(url: str) -> Optional[str]:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         lines = result.stdout.strip().splitlines()
         title = lines[0].strip() if lines else None
-        # yt-dlp prints "NA" when the field is unavailable
         return title if title and title.upper() != "NA" else None
     except FileNotFoundError:
         return None
@@ -48,7 +66,7 @@ def sanitize_folder_name(name: str) -> str:
 # Command builder
 # ---------------------------------------------------------------------------
 
-def build_command(url: str, out_dir: Path, cfg: Dict[str, Any]) -> List[str]:
+def build_command(url: str, out_dir: Path, archive: Path, cfg: Dict[str, Any]) -> List[str]:
     cmd = [
         "yt-dlp",
         "--format",           "bestaudio/best",
@@ -56,7 +74,7 @@ def build_command(url: str, out_dir: Path, cfg: Dict[str, Any]) -> List[str]:
         "--audio-format",     cfg["audio_format"],
         "--audio-quality",    str(cfg["audio_quality"]),
         "--output",           str(out_dir / cfg["output_template"]),
-        "--download-archive", str(out_dir / ".yt-dlp-archive.txt"),
+        "--download-archive", str(archive),
         "--console-title",
     ]
     if cfg.get("no_overwrites"):
@@ -92,10 +110,11 @@ def run(url: str, base_out_dir: Path, cfg: Dict[str, Any]) -> int:
 
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    cmd = build_command(url, out_dir, cfg)
+    archive = get_archive_path(out_dir, url)
+    cmd     = build_command(url, out_dir, archive, cfg)
 
     print(f"[yt-playlist-dl] Output dir : {out_dir}")
-    print(f"[yt-playlist-dl] Archive    : {out_dir / '.yt-dlp-archive.txt'}")
+    print(f"[yt-playlist-dl] Archive    : {archive}")
     print(f"[yt-playlist-dl] Command    : {' '.join(cmd)}\n")
 
     try:
