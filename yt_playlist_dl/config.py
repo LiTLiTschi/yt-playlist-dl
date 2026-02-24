@@ -10,27 +10,29 @@ except ImportError:
 
 FILENAME = "yt_playlist_dl_config.yaml"
 
-# Loaded in order — later entries override earlier ones (cwd wins over global)
 CONFIG_LOCATIONS = [
-    Path.home() / ".config" / FILENAME,      # 3 — global user
-    Path.cwd() / ".config" / FILENAME,       # 2 — project hidden dir
-    Path.cwd() / FILENAME,                   # 1 — cwd (highest priority)
+    Path.home() / ".config" / FILENAME,
+    Path.cwd() / ".config" / FILENAME,
+    Path.cwd() / FILENAME,
 ]
 
 DEFAULTS: Dict[str, Any] = {
-    "audio_format":        "mp3",
-    "audio_quality":       "0",
-    "output_template":     "%(playlist_index)s - %(title)s.%(ext)s",
-    "ignore_errors":       True,
-    "no_overwrites":       True,
-    "use_playlist_folder": False,
-    "default_output_dir":  None,
-    "extra_yt_dlp_args":   [],
+    "audio_format":            "mp3",
+    "audio_quality":           "0",
+    "output_template":         "%(playlist_index)s - %(title)s.%(ext)s",
+    "ignore_errors":           True,
+    "no_overwrites":           True,
+    "use_playlist_folder":     False,
+    # If the video title is "Artist - Title", split it into proper ID3 fields.
+    "parse_artist_title":      False,
+    # Set the Album ID3 tag to the playlist name.
+    "embed_playlist_as_album": False,
+    "default_output_dir":      None,
+    "extra_yt_dlp_args":       [],
 }
 
 
 def _format_yaml_error(err: yaml.YAMLError) -> str:
-    """Return a concise, human-readable description of a YAML parse error."""
     mark = getattr(err, "problem_mark", None)
     problem = getattr(err, "problem", str(err))
     if mark:
@@ -61,18 +63,16 @@ def load_config() -> Dict[str, Any]:
             raise SystemExit(2)
 
         if data is None:
-            # Empty file — just skip silently
             continue
         if not isinstance(data, dict):
             print(
-                f"[ERROR] Config file must be a YAML mapping (key: value pairs).\n"
+                f"[ERROR] Config must be a YAML mapping (key: value pairs).\n"
                 f"        Got {type(data).__name__} instead in:\n"
                 f"        {path}",
                 file=sys.stderr,
             )
             raise SystemExit(2)
 
-        # Warn about unknown keys so typos don\'t silently go ignored
         unknown = set(data.keys()) - set(DEFAULTS.keys())
         if unknown:
             print(

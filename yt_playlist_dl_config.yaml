@@ -26,7 +26,6 @@ audio_quality: "0"
 
 # MUST be quoted because of the % signs.
 # Variables: %(playlist_index)s  %(title)s  %(uploader)s  %(ext)s
-# See: https://github.com/yt-dlp/yt-dlp#output-template
 output_template: "%(playlist_index)s - %(title)s.%(ext)s"
 
 
@@ -34,6 +33,20 @@ output_template: "%(playlist_index)s - %(title)s.%(ext)s"
 
 # When true, downloads go into a subfolder named after the playlist.
 use_playlist_folder: false
+
+
+# ── Metadata ──────────────────────────────────────────────────────────────────
+
+# Auto-detect "Artist - Title" in the video title and split it into
+# separate Artist and Title ID3 tags.
+# Uses yt-dlp's --parse-metadata internally — safe to enable; if the title
+# doesn't contain " - " the tags are left unchanged.
+# Requires ffmpeg. --add-metadata is injected automatically when enabled.
+parse_artist_title: false
+
+# Write the playlist name into the Album ID3 tag of every downloaded track.
+# Requires ffmpeg. --add-metadata is injected automatically when enabled.
+embed_playlist_as_album: false
 
 
 # ── Download behaviour ───────────────────────────────────────────────────────
@@ -45,10 +58,8 @@ no_overwrites: true
 # ── Default output directory ─────────────────────────────────────────────────
 
 # Set your download location here — the bat file reads this automatically.
-# Use forward slashes or double backslashes.
 # Examples:
 #   default_output_dir: "H:/music/YT"
-#   default_output_dir: "D:/Music/YouTube"
 #   default_output_dir: null    <- uses cwd
 default_output_dir: null
 

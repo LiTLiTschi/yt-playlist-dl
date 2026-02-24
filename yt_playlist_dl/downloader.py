@@ -12,15 +12,6 @@ from typing import Any, Dict, List, Optional
 # ---------------------------------------------------------------------------
 
 def get_archive_path(out_dir: Path, url: str) -> Path:
-    """
-    Return a URL-specific archive file path inside out_dir.
-
-    Using a SHA-256 hash of the URL means:
-      - Each playlist always maps to exactly the same archive file (stable).
-      - Two different playlists that share a video each get their own archive,
-        so the video is downloaded once per playlist and skipped on re-runs
-        of the same playlist.
-    """
     url_hash = hashlib.sha256(url.encode()).hexdigest()[:12]
     return out_dir / f".yt-dlp-archive-{url_hash}.txt"
 
@@ -30,10 +21,6 @@ def get_archive_path(out_dir: Path, url: str) -> Path:
 # ---------------------------------------------------------------------------
 
 def get_playlist_title(url: str) -> Optional[str]:
-    """
-    Ask yt-dlp for the playlist title without downloading anything.
-    Fetches only the first item metadata via --flat-playlist.
-    """
     cmd = [
         "yt-dlp",
         "--flat-playlist",
@@ -52,14 +39,48 @@ def get_playlist_title(url: str) -> Optional[str]:
 
 
 def sanitize_folder_name(name: str) -> str:
-    """
-    Strip characters that are illegal in Windows / Linux folder names
-    and trim whitespace.
-    """
-    name = re.sub(r'[<>:"/\\|?*]', "", name)   # Windows forbidden chars
-    name = re.sub(r"[\x00-\x1f]", "", name)      # control characters
-    name = re.sub(r"\s+", " ", name).strip()      # collapse whitespace
+    name = re.sub(r'[<>:"/\\|?*]', "", name)
+    name = re.sub(r"[\x00-\x1f]", "", name)
+    name = re.sub(r"\s+", " ", name).strip()
     return name or "playlist"
+
+
+# ---------------------------------------------------------------------------
+# Metadata flags
+# ---------------------------------------------------------------------------
+
+def metadata_flags(cfg: Dict[str, Any]) -> List[str]:
+    """
+    Build the list of yt-dlp metadata flags derived from config.
+    --add-metadata is injected automatically when any metadata feature is on.
+    """
+    flags: List[str] = []
+    needs_add_metadata = False
+
+    # Feature: split "Artist - Title" into separate ID3 fields.
+    # Uses yt-dlp's built-in --parse-metadata regex matching.
+    # Only fires when the title actually contains " - "; safe to leave on.
+    if cfg.get("parse_artist_title"):
+        flags += [
+            "--parse-metadata",
+            "title:%(artist)s - %(title)s",
+        ]
+        needs_add_metadata = True
+
+    # Feature: write the playlist name into the Album ID3 tag.
+    if cfg.get("embed_playlist_as_album"):
+        flags += [
+            "--parse-metadata",
+            "playlist_title:%(album)s",
+        ]
+        needs_add_metadata = True
+
+    # Auto-inject --add-metadata only if needed and not already in extra_args
+    extra = cfg.get("extra_yt_dlp_args") or []
+    if needs_add_metadata and "--add-metadata" not in extra:
+        flags.append("--add-metadata")
+
+    return flags
 
 
 # ---------------------------------------------------------------------------
@@ -81,8 +102,12 @@ def build_command(url: str, out_dir: Path, archive: Path, cfg: Dict[str, Any]) -
         cmd.append("--no-overwrites")
     if cfg.get("ignore_errors"):
         cmd.append("--ignore-errors")
+
+    cmd.extend(metadata_flags(cfg))
+
     if cfg.get("extra_yt_dlp_args"):
         cmd.extend(cfg["extra_yt_dlp_args"])
+
     cmd.append(url)
     return cmd
 
@@ -92,7 +117,6 @@ def build_command(url: str, out_dir: Path, archive: Path, cfg: Dict[str, Any]) -
 # ---------------------------------------------------------------------------
 
 def run(url: str, base_out_dir: Path, cfg: Dict[str, Any]) -> int:
-    # Resolve the actual output directory
     if cfg.get("use_playlist_folder"):
         print("[yt-playlist-dl] Fetching playlist title...")
         title = get_playlist_title(url)
