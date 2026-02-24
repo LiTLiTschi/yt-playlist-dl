@@ -1,13 +1,19 @@
 @echo off
 REM ─────────────────────────────────────────────────────────────────────────
 REM  yt-playlist-dl launcher
-REM  Edit PLAYLIST_URL and OUTPUT_DIR below, then double-click to run.
+REM
+REM  Option A — single playlist:
+REM    Set PLAYLIST_URL below. OUTPUT_DIR is where the file(s) land.
+REM
+REM  Option B — batch from list.txt:
+REM    Leave PLAYLIST_URL blank and create OUTPUT_DIR\list.txt
+REM    with one YouTube URL per line (lines starting with # are comments).
 REM ─────────────────────────────────────────────────────────────────────────
 
-REM Playlist URL to download
-set PLAYLIST_URL=https://www.youtube.com/watch?v=s3greXPN6pQ&list=PLBO859yyr3x9UhaqjdbkBWBX7rY4-Khtv
+REM Playlist URL  (leave blank to use list.txt instead)
+set PLAYLIST_URL=
 
-REM Destination folder (leave blank to use the folder this .bat file is in)
+REM Destination folder
 set OUTPUT_DIR=D:\Music\YT
 
 REM ─────────────────────────────────────────────────────────────────────────
@@ -16,14 +22,25 @@ REM ─────────────────────────�
 
 echo.
 echo  yt-playlist-dl launcher
-echo  URL : %PLAYLIST_URL%
+if not "%PLAYLIST_URL%"=="" echo  URL : %PLAYLIST_URL%
+if     "%PLAYLIST_URL%"=="" echo  Mode: batch from %OUTPUT_DIR%\list.txt
 echo  OUT : %OUTPUT_DIR%
 echo.
 
 if "%OUTPUT_DIR%"=="" (
-    yt-playlist-dl "%PLAYLIST_URL%"
+    REM No output dir — use cwd
+    if "%PLAYLIST_URL%"=="" (
+        yt-playlist-dl
+    ) else (
+        yt-playlist-dl "%PLAYLIST_URL%"
+    )
 ) else (
-    yt-playlist-dl "%PLAYLIST_URL%" "%OUTPUT_DIR%"
+    if "%PLAYLIST_URL%"=="" (
+        REM No URL — script will read list.txt from OUTPUT_DIR
+        yt-playlist-dl "%OUTPUT_DIR%"
+    ) else (
+        yt-playlist-dl "%PLAYLIST_URL%" "%OUTPUT_DIR%"
+    )
 )
 
 echo.

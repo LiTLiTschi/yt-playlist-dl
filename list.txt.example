@@ -1,0 +1,18 @@
+# yt-playlist-dl — URL list file
+# ─────────────────────────────────────────────────────────────────────────
+# Copy this file to your output directory and rename it to  list.txt
+# Then leave PLAYLIST_URL blank in download_playlist.bat and just run it.
+#
+# Rules:
+#   - One URL per line
+#   - Lines starting with # are comments (ignored)
+#   - Blank lines are ignored
+#   - Each URL is downloaded in order, into its own subfolder
+#     when use_playlist_folder: true is set in the config
+# ─────────────────────────────────────────────────────────────────────────
+
+# Example playlist
+https://www.youtube.com/watch?v=s3greXPN6pQ&list=PLBO859yyr3x9UhaqjdbkBWBX7rY4-Khtv
+
+# Another playlist
+# https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxx
