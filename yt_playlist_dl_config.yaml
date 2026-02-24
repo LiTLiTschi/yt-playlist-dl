@@ -1,0 +1,68 @@
+# yt-playlist-dl config
+# ─────────────────────────────────────────────────────────────────────────────
+# This file is loaded automatically if placed in any of these locations
+# (higher number = higher priority, overrides the ones below):
+#
+#   3.  ~/.config/yt_playlist_dl_config.yaml      ← global user default
+#   2.  ./.config/yt_playlist_dl_config.yaml      ← project-level
+#   1.  ./yt_playlist_dl_config.yaml              ← next to the .bat file (wins)
+#
+# All three files are merged — you only need to set the keys you want to change.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ── Audio ────────────────────────────────────────────────────────────────────
+
+# Output format after conversion.
+# Options: mp3 | m4a | opus | flac | wav | best (keep original, no conversion)
+audio_format: mp3
+
+# Quality level (applies to VBR encoding).
+# 0 = best quality (~245 kbps VBR for mp3)  |  9 = smallest file / worst quality
+audio_quality: "0"
+
+
+# ── File naming ──────────────────────────────────────────────────────────────
+
+# yt-dlp output template for file names.
+# Available variables: %(playlist_index)s  %(title)s  %(uploader)s  %(ext)s
+# See: https://github.com/yt-dlp/yt-dlp#output-template
+output_template: "%(playlist_index)s - %(title)s.%(ext)s"
+
+
+# ── Download behaviour ───────────────────────────────────────────────────────
+
+# Continue downloading even if individual videos are unavailable or geo-blocked.
+ignore_errors: true
+
+# Never overwrite a file that already exists on disk.
+# Note: the archive file (see below) is the primary skip mechanism.
+no_overwrites: true
+
+
+# ── Default output directory ─────────────────────────────────────────────────
+
+# Where to save files when no output_dir is passed as a CLI argument.
+# Accepts absolute paths, relative paths, and ~ for home directory.
+# Set to null to use the current working directory instead.
+#
+# Examples:
+#   default_output_dir: "D:/Music/YT"
+#   default_output_dir: "~/Music/YouTube"
+#   default_output_dir: null
+default_output_dir: null
+
+
+# ── Extra yt-dlp flags ───────────────────────────────────────────────────────
+
+# Any additional yt-dlp arguments passed verbatim.
+# Each flag must be a separate list item.
+#
+# Useful extras:
+#   "--embed-thumbnail"   — embed cover art into the audio file
+#   "--add-metadata"      — write title/artist/etc. into ID3 tags
+#   "--sponsorblock-mark all"  — mark SponsorBlock segments
+#
+extra_yt_dlp_args: []
+#   - "--embed-thumbnail"
+#   - "--add-metadata"
