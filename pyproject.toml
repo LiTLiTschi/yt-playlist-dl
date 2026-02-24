@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "yt-playlist-dl"
+version = "0.1.0"
+description = "Download YouTube playlists as best-quality audio via yt-dlp"
+requires-python = ">=3.9"
+dependencies = ["pyyaml>=6.0"]
+
+[project.scripts]
+yt-playlist-dl = "yt_playlist_dl.cli:main"

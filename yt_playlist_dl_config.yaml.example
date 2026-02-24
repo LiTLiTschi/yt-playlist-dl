@@ -1,0 +1,15 @@
+# yt-playlist-dl example config
+# Copy this file to any of:
+#   ~/.config/yt_playlist_dl_config.yaml        (global)
+#   ./.config/yt_playlist_dl_config.yaml        (project-level hidden)
+#   ./yt_playlist_dl_config.yaml                (cwd, highest priority)
+#
+# All three locations are merged — local files only need to override what differs.
+
+audio_format: mp3           # mp3 | m4a | opus | flac | wav | best
+audio_quality: "0"          # 0 = best VBR (~245 kbps), 9 = worst
+output_template: "%(playlist_index)s - %(title)s.%(ext)s"
+ignore_errors: true         # skip unavailable/region-locked tracks
+no_overwrites: true         # don't re-download if file already exists
+default_output_dir: null    # e.g. "D:/Music/YT" — null means use cwd
+extra_yt_dlp_args: []       # e.g. ["--embed-thumbnail", "--add-metadata"]
