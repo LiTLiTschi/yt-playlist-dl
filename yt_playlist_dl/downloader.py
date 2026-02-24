@@ -1,9 +1,52 @@
 from __future__ import annotations
+import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
+
+# ---------------------------------------------------------------------------
+# Playlist title helpers
+# ---------------------------------------------------------------------------
+
+def get_playlist_title(url: str) -> Optional[str]:
+    """
+    Ask yt-dlp for the playlist title without downloading anything.
+    Fetches only the first item metadata via --flat-playlist.
+    """
+    cmd = [
+        "yt-dlp",
+        "--flat-playlist",
+        "--playlist-items", "1",
+        "--print", "%(playlist_title)s",
+        "--no-warnings",
+        url,
+    ]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        lines = result.stdout.strip().splitlines()
+        title = lines[0].strip() if lines else None
+        # yt-dlp prints "NA" when the field is unavailable
+        return title if title and title.upper() != "NA" else None
+    except FileNotFoundError:
+        return None
+
+
+def sanitize_folder_name(name: str) -> str:
+    """
+    Strip characters that are illegal in Windows / Linux folder names
+    and trim whitespace.
+    """
+    name = re.sub(r'[<>:"/\\|?*]', "", name)   # Windows forbidden chars
+    name = re.sub(r"[\x00-\x1f]", "", name)      # control characters
+    name = re.sub(r"\s+", " ", name).strip()      # collapse whitespace
+    return name or "playlist"
+
+
+# ---------------------------------------------------------------------------
+# Command builder
+# ---------------------------------------------------------------------------
 
 def build_command(url: str, out_dir: Path, cfg: Dict[str, Any]) -> List[str]:
     cmd = [
@@ -26,8 +69,29 @@ def build_command(url: str, out_dir: Path, cfg: Dict[str, Any]) -> List[str]:
     return cmd
 
 
-def run(url: str, out_dir: Path, cfg: Dict[str, Any]) -> int:
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+def run(url: str, base_out_dir: Path, cfg: Dict[str, Any]) -> int:
+    # Resolve the actual output directory
+    if cfg.get("use_playlist_folder"):
+        print("[yt-playlist-dl] Fetching playlist title...")
+        title = get_playlist_title(url)
+        if title:
+            folder_name = sanitize_folder_name(title)
+            out_dir = base_out_dir / folder_name
+            print(f"[yt-playlist-dl] Playlist  : {title!r}")
+            print(f"[yt-playlist-dl] Subfolder : {folder_name}")
+        else:
+            out_dir = base_out_dir
+            print("[yt-playlist-dl] Warning: could not determine playlist title, "
+                  "falling back to base output dir.")
+    else:
+        out_dir = base_out_dir
+
     out_dir.mkdir(parents=True, exist_ok=True)
+
     cmd = build_command(url, out_dir, cfg)
 
     print(f"[yt-playlist-dl] Output dir : {out_dir}")

@@ -17,13 +17,14 @@ CONFIG_LOCATIONS = [
 ]
 
 DEFAULTS: Dict[str, Any] = {
-    "audio_format":     "mp3",
-    "audio_quality":    "0",               # 0 = best VBR, 9 = worst
-    "output_template":  "%(playlist_index)s - %(title)s.%(ext)s",
-    "ignore_errors":    True,
-    "no_overwrites":    True,
-    "default_output_dir": None,            # None = use cwd
-    "extra_yt_dlp_args":  [],
+    "audio_format":        "mp3",
+    "audio_quality":       "0",       # 0 = best VBR, 9 = worst
+    "output_template":     "%(playlist_index)s - %(title)s.%(ext)s",
+    "ignore_errors":       True,
+    "no_overwrites":       True,
+    "use_playlist_folder": False,     # put downloads in a subfolder named after the playlist
+    "default_output_dir":  None,      # None = cwd
+    "extra_yt_dlp_args":   [],
 }
 
 

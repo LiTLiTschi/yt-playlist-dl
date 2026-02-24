@@ -30,13 +30,28 @@ audio_quality: "0"
 output_template: "%(playlist_index)s - %(title)s.%(ext)s"
 
 
+# ── Folder organisation ───────────────────────────────────────────────────────
+
+# When true, a subfolder named after the playlist is automatically created
+# inside the output directory. Each playlist gets its own folder and its own
+# .yt-dlp-archive.txt, so re-running only skips tracks already in that playlist.
+#
+# Example result with output_dir = D:\Music\YT and a playlist called "Jungle Mixes":
+#   D:\Music\YT\
+#   └── Jungle Mixes\
+#       ├── 01 - Track Name.mp3
+#       ├── 02 - Another Track.mp3
+#       └── .yt-dlp-archive.txt   ← skip list lives here too
+use_playlist_folder: false
+
+
 # ── Download behaviour ───────────────────────────────────────────────────────
 
 # Continue downloading even if individual videos are unavailable or geo-blocked.
 ignore_errors: true
 
 # Never overwrite a file that already exists on disk.
-# Note: the archive file (see below) is the primary skip mechanism.
+# Note: the archive file (see above) is the primary skip mechanism.
 no_overwrites: true
 
 
@@ -59,8 +74,8 @@ default_output_dir: null
 # Each flag must be a separate list item.
 #
 # Useful extras:
-#   "--embed-thumbnail"   — embed cover art into the audio file
-#   "--add-metadata"      — write title/artist/etc. into ID3 tags
+#   "--embed-thumbnail"        — embed cover art into the audio file
+#   "--add-metadata"           — write title/artist/etc. into ID3 tags
 #   "--sponsorblock-mark all"  — mark SponsorBlock segments
 #
 extra_yt_dlp_args: []
