@@ -11,6 +11,9 @@ REM  Option B — batch from list.txt: leave PLAYLIST_URL blank and create
 REM             OUTPUT_DIR\list.txt with one URL per line (# = comment).
 REM ─────────────────────────────────────────────────────────────────────────
 
+REM Path to your venv — edit if yours is in a different location
+set "VENV=%USERPROFILE%\.venv"
+
 REM Playlist URL  (leave blank to use list.txt instead)
 set "PLAYLIST_URL=https://www.youtube.com/watch?v=s3greXPN6pQ&list=PLBO859yyr3x9UhaqjdbkBWBX7rY4-Khtv"
 
@@ -21,11 +24,16 @@ REM ─────────────────────────�
 REM  Nothing to edit below this line
 REM ─────────────────────────────────────────────────────────────────────────
 
+REM Prepend venv Scripts to PATH so yt-playlist-dl.exe is found
+REM without needing to manually activate the venv first.
+set "PATH=%VENV%\Scripts;%PATH%"
+
 echo.
 echo  yt-playlist-dl launcher
-if not "%PLAYLIST_URL%"=="" echo  URL : %PLAYLIST_URL%
-if     "%PLAYLIST_URL%"=="" echo  Mode: batch from %OUTPUT_DIR%\list.txt
-echo  OUT : %OUTPUT_DIR%
+echo  venv : %VENV%
+if not "%PLAYLIST_URL%"=="" echo  URL  : %PLAYLIST_URL%
+if     "%PLAYLIST_URL%"=="" echo  Mode : batch from %OUTPUT_DIR%\list.txt
+echo  OUT  : %OUTPUT_DIR%
 echo.
 
 if "%OUTPUT_DIR%"=="" (
