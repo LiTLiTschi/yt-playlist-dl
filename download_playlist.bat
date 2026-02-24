@@ -1,24 +1,25 @@
 @echo off
-REM yt-playlist-dl launcher
+REM ─────────────────────────────────────────────────────────────────────────
+REM  yt-playlist-dl launcher
 REM
-REM Option A - single playlist:
-REM   Set PLAYLIST_URL below. OUTPUT_DIR is where the file(s) land.
+REM  IMPORTANT: use  set "VAR=value"  (quotes around the whole assignment).
+REM  This prevents the & in YouTube URLs from being treated as a command
+REM  separator by cmd.exe.
 REM
-REM Option B - batch from list.txt:
-REM   Leave PLAYLIST_URL blank and create OUTPUT_DIR\list.txt
-REM   with one YouTube playlist URL per line (# lines are comments).
-REM
-REM IMPORTANT: Keep the  set "VAR=value"  quoting style.
-REM The ampersand (&) in YouTube URLs is a batch command separator
-REM and MUST be inside a quoted assignment to be treated as plain text.
+REM  Option A — single playlist:  set PLAYLIST_URL to the full URL.
+REM  Option B — batch from list.txt: leave PLAYLIST_URL blank and create
+REM             OUTPUT_DIR\list.txt with one URL per line (# = comment).
+REM ─────────────────────────────────────────────────────────────────────────
 
-REM YouTube playlist URL  (leave blank to use list.txt instead)
-set "PLAYLIST_URL="
+REM Playlist URL  (leave blank to use list.txt instead)
+set "PLAYLIST_URL=https://www.youtube.com/watch?v=s3greXPN6pQ&list=PLBO859yyr3x9UhaqjdbkBWBX7rY4-Khtv"
 
 REM Destination folder
 set "OUTPUT_DIR=D:\Music\YT"
 
-REM --- nothing to edit below this line ---
+REM ─────────────────────────────────────────────────────────────────────────
+REM  Nothing to edit below this line
+REM ─────────────────────────────────────────────────────────────────────────
 
 echo.
 echo  yt-playlist-dl launcher
@@ -45,7 +46,7 @@ echo.
 if %ERRORLEVEL% EQU 0 (
     echo  Done! All tracks downloaded successfully.
 ) else (
-    echo  Finished with errors (exit code %ERRORLEVEL%). Check output above.
+    echo  Finished with errors ^(exit code %ERRORLEVEL%^). Check output above.
 )
 
 echo.
